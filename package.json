@@ -1,0 +1,24 @@
+{
+  "name": "ajaxedit",
+  "version": "0.0.1",
+  "description": "Lightweight jQuery plugin to edit HTML text without reloading the page.",
+  "main": "src/jquery.ajaxedit.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:bfontaine/AjaxEdit.git"
+  },
+  "keywords": [
+    "ajax",
+    "jquery",
+    "edit"
+  ],
+  "author": "Baptiste Fontaine",
+  "license": "MIT",
+  "readmeFilename": "README.md"
+}
