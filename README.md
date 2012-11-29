@@ -57,3 +57,16 @@ $( '#example' ).ajaxedit({
 });
 ```
 
+Events
+------
+
+Different events are triggered by the plugin:
+
+1. When an element is ready to be edited: `EditReady`
+2. When the user try to edit an element: `EditInit`
+3. If the call to the API works: `EditOk`
+4. If there is an error: `EditError`
+5. When the user saves their change: `EditEnd`
+6. If the user cancel the edit: `EditCanceled`
+7. If the save failed: `EditSaveError`
+8. Otherwise: `EditSaveOk`
