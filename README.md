@@ -23,14 +23,14 @@ Example of JSON content returned by your API:
 
 ```json
 {
-    'title' : {
-        'html' : 'Foo <b>bar</b>',
-        'text' : 'Foo **bar**'
+    "title" : {
+        "html" : "Foo <b>bar</b>",
+        "text" : "Foo **bar**"
     },
 
-    'intro' : {
-        'html' : 'Lorem <a href="#">ipsum</a>',
-        'text' : 'Lorem [ipsum](#)'
+    "intro" : {
+        "html" : "Lorem <a href='#'>ipsum</a>",
+        "text" : "Lorem [ipsum](#)"
     }
 }
 ```
