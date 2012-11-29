@@ -36,12 +36,17 @@
                 text: 'text'
             },
 
-            // i18n
+            // buttons' labels
             buttons: {
                 edit:   'Edit',
                 save:   'Save',
                 cancel: 'Cancel'
-            }
+            },
+
+            // if this is set to true, the fields' text values will
+            // be preloaded. If this is set to false, their text values
+            // will be loaded only if the user try to edit them.
+            preload: false
 
         },
 
@@ -50,6 +55,23 @@
         // GETting/POSTing the content
         noURLException = new Error( 'No URL provided.' );
 
+
+    // attach an "Edit" button to the element, which will be made
+    // visible when the user move their mouse over the element
+    function attachHoverButton( $el, label, callback ) {
+
+        var $editButton = $( '<input>' )
+                            .attr( 'type', 'button' )
+                            .addClass( 'ajaxedit-button' ),
+                            .text( label )
+                            .click( callback );
+
+        $el.hover(
+            function() { $editButton.appendTo( $el ); },
+            function() { $editButton.detach(); }
+        );
+
+    }
 
     // AjaxEdit main function
     $.fn.ajaxedit = function( opts ) {
@@ -94,7 +116,7 @@
             }
             else {
 
-                // if not, pick its children
+                // otherwise, pick its children
                 fields = fields.concat( $e.find( '[data-editable="true"][data-name]' ) );
 
             }
@@ -108,9 +130,49 @@
         
         }
 
+        // List of events triggered when the user wants to edit an element
+        var editOn = ($.type( opts.editOn ) === 'array')
+                        ? opts.editOn
+                        : [ opts.editOn ];
+
         $.each( fields, function( $field ) {
 
-            // TODO Attach listeners to switch between edit/normal mode
+            // this is the function which will be called when the user
+            // try to edit the field
+            var callback = function( $el ) {
+
+                // if the field is currently being edited, don't do anything
+                if ( $el.data( 'edited' ) ) {
+                    return;
+                }
+
+                $el.data( 'edited', true );
+
+                // TODO
+
+            };
+
+            // For each 'edit' event, bind the event to the callback
+            $.each( editOn, function( ev ) {
+
+                // special 'event' : The "Edit" button
+                if ( ev === 'hoverButton' ) {
+
+                    attachHoverButton( $field, opts.buttons.edit, callback );
+                
+                }
+                else {
+
+                    $field.bind( ev, callback );
+
+                }
+
+            });
+
+            // The field is ready to be edited
+            $field
+                .attr( 'contenteditable', false )
+                .trigger( 'EditReady' );
 
         });
 
