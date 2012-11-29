@@ -45,15 +45,13 @@
 
         },
 
-        basicButton = $( 'input' )
-                        .attr( 'type', 'button' )
-                        .addClass( 'ajaxedit-button' ),
 
-
+        // This Error is raised when no URL is provided for
+        // GETting/POSTing the content
         noURLException = new Error( 'No URL provided.' );
 
 
-
+    // AjaxEdit main function
     $.fn.ajaxedit = function( opts ) {
 
         if ( arguments.length === 0 ) {
@@ -62,20 +60,21 @@
 
         }
 
-        // if the parameter is a string, we assume that
-        // this is the API endpoint
+        // if the argument is a string, we assume that
+        // this is the API endpoint (URL)
         if ( typeof opts === 'string' ) {
 
             opts = $.extend( true, {}, defaultOptions, { url: opts } );
 
         }
+        // else, this is an object where keys/values are options
         else if ( typeof opts === 'object' ) {
 
             opts = $.extend( true, {}, defaultOptions, opts );
 
         }
 
-        if (!( 'url' in opts )) {
+        if (!opts.hasOwnProperty('url')) {
 
             throw noURLException;
 
@@ -87,22 +86,22 @@
 
             var $e = $(e);
 
-            // if this element is editable, don't search for fields in it
             if ( $e.attr( 'data-editable' ) === 'true' && $e.attr( 'data-name' ) ) {
 
+                // if this element is editable, don't search for fields in it
                 fields.push($e);
 
             }
-            // if not, pick its children
             else {
 
+                // if not, pick its children
                 fields = fields.concat( $e.find( '[data-editable="true"][data-name]' ) );
 
             }
 
         });
 
-        // if there is no editable elements
+        // if there is no editable elements, don't do anything
         if ( fields.length === 0 ) {
             
             return this;
