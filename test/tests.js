@@ -22,21 +22,39 @@
         }
     });
 
+    var $baseDiv = $('<div>').attr('data-name', 'the_text'),
+        body     = document.body;
 
-    var $the_div = $('div')
-                    .attr('data-name', 'the_text')
-                    .appendTo(document.body);
+    test( 'no URL', function() {
 
+        var $theDiv = $baseDiv.clone().appendTo(body);
 
-    test( 'one field, no initial content', function() {
+        throws( function() { $theDiv.ajaxedit();   }, Error);
+        throws( function() { $theDiv.ajaxedit({}); }, Error);
+
+        $theDiv.remove();
+    });
+
+    test( 'hover button', function() {
+
+        var $theDiv = $baseDiv.clone().appendTo(body);
 
         ok(
-            $the_div.ajaxedit({
+            $theDiv.ajaxedit({
                 url: '/api/no-content'
             })
         );
 
-        // TODO
+        ok( $('input[type="button"]', $theDiv).length === 0 );
+
+        $theDiv.trigger('mouseenter');
+        ok( $('input[type="button"]', $theDiv).length === 1 );
+
+        $theDiv.trigger('mouseleave');
+        ok( $('input[type="button"]', $theDiv).length === 0 );
+
+
+        $theDiv.remove();
 
     });
 
