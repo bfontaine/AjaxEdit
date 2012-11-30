@@ -62,7 +62,7 @@
 
         var $editButton = $( '<input>' )
                             .attr( 'type', 'button' )
-                            .addClass( 'ajaxedit-button' ),
+                            .addClass( 'ajaxedit-button' )
                             .text( label )
                             .click( callback );
 
@@ -104,7 +104,7 @@
 
         var fields = [];
 
-        this.each( function(e) {
+        this.each( function( i, e ) {
 
             var $e = $(e);
 
@@ -135,7 +135,7 @@
                         ? opts.editOn
                         : [ opts.editOn ];
 
-        $.each( fields, function( $field ) {
+        $.each( fields, function( i, $field ) {
 
             // this is the function which will be called when the user
             // try to edit the field
@@ -153,7 +153,7 @@
             };
 
             // For each 'edit' event, bind the event to the callback
-            $.each( editOn, function( ev ) {
+            $.each( editOn, function( i, ev ) {
 
                 // special 'event' : The "Edit" button
                 if ( ev === 'hoverButton' ) {
