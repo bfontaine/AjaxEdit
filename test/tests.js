@@ -25,12 +25,20 @@
     var $baseDiv = $('<div>').attr('data-name', 'the_text'),
         body     = document.body;
 
+    test( 'no element', function() {
+
+        ok( $('#no-elem').ajaxedit('foo') );
+
+    });
+
     test( 'no URL', function() {
 
         var $theDiv = $baseDiv.clone().appendTo(body);
 
-        throws( function() { $theDiv.ajaxedit();   }, Error);
-        throws( function() { $theDiv.ajaxedit({}); }, Error);
+        throws( function() { $theDiv.ajaxedit();   }         , Error);
+        throws( function() { $theDiv.ajaxedit(''); }         , Error);
+        throws( function() { $theDiv.ajaxedit({}); }         , Error);
+        throws( function() { $theDiv.ajaxedit({ url: '' }); }, Error);
 
         $theDiv.remove();
     });
@@ -41,7 +49,7 @@
 
         ok(
             $theDiv.ajaxedit({
-                url: '/api/no-content'
+                url: '/api/no-content.json'
             })
         );
 
@@ -65,7 +73,7 @@
 
         ok(
             $theDiv.ajaxedit({
-                url: '/api/no-content',
+                url: '/api/no-content.json',
                 editOn: 'mouseover'
             })
         );
@@ -83,12 +91,29 @@
 
         ok(
             $theDiv.ajaxedit({
-                url: '/api/no-content',
+                url: '/api/no-content.json',
                 editOn: ['mouseover', 'hoverButton', 'click']
             })
         );
 
         $theDiv.trigger('mouseover');
+
+        $theDiv.remove();
+
+    });
+
+    test( 'bad url', function() {
+
+        var $theDiv = $baseDiv.clone().appendTo(body);
+
+        ok(
+            $theDiv.ajaxedit({
+                url: '/api/bad-url'
+            })
+        );
+
+        // there should be no exception
+        $theDiv.trigger('mouseenter');
 
         $theDiv.remove();
 
