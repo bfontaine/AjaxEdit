@@ -58,5 +58,40 @@
 
     });
 
+    test( 'edit on 1 event', function() {
+
+
+        var $theDiv = $baseDiv.clone().appendTo(body);
+
+        ok(
+            $theDiv.ajaxedit({
+                url: '/api/no-content',
+                editOn: 'mouseover'
+            })
+        );
+
+        $theDiv.trigger('mouseover');
+
+        $theDiv.remove();
+
+    });
+
+    test( 'edit on multiple events', function() {
+
+
+        var $theDiv = $baseDiv.clone().appendTo(body);
+
+        ok(
+            $theDiv.ajaxedit({
+                url: '/api/no-content',
+                editOn: ['mouseover', 'hoverButton', 'click']
+            })
+        );
+
+        $theDiv.trigger('mouseover');
+
+        $theDiv.remove();
+
+    });
 
 })(jQuery);
