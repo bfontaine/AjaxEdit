@@ -104,24 +104,33 @@
 
         var fields = [];
 
-        this.each( function( i, e ) {
+        if ( this.length === 1 && this.attr('data-name') ) {
+        
+            fields.push( this );
+        
+        }
+        else {
 
-            var $e = $(e);
+            this.each( function( i, e ) {
 
-            if ( $e.attr( 'data-editable' ) === 'true' && $e.attr( 'data-name' ) ) {
+                var $e = $(e);
 
-                // if this element is editable, don't search for fields in it
-                fields.push($e);
+                if ( $e.attr( 'data-name' ) ) {
 
-            }
-            else {
+                    // if this element is editable, don't search for fields in it
+                    fields.push($e);
 
-                // otherwise, pick its children
-                fields = fields.concat( $e.find( '[data-editable="true"][data-name]' ) );
+                }
+                else {
 
-            }
+                    // otherwise, pick its children
+                    fields = fields.concat( $e.find( '[data-name]' ) );
 
-        });
+                }
+
+            });
+
+        }
 
         // if there is no editable elements, don't do anything
         if ( fields.length === 0 ) {
