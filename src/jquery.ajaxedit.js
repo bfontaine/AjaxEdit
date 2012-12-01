@@ -93,6 +93,10 @@
                  if ( !$el.data( 'edited' ) ) { return; }
 
                 $el.trigger('EditOk');
+
+                // TODO add Save/Cancel buttons and
+                // set the 'contenteditable' attribute and
+                // the text content
              
              },
              // called if there's an error
