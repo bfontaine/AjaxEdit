@@ -148,7 +148,9 @@
 
             // this is the function which will be called when the user
             // try to edit the field
-            var callback = function( $el ) {
+            var callback = function() {
+
+                var $el = $(this);
 
                 // if the field is currently being edited, don't do anything
                 if ( $el.data( 'edited' ) ) {
@@ -164,7 +166,7 @@
             // For each 'edit' event, bind the event to the callback
             $.each( editOn, function( i, ev ) {
 
-                // special 'event' : The "Edit" button
+                // special 'event': The "Edit" button
                 if ( ev === 'hoverButton' ) {
 
                     attachHoverButton( $field, opts.buttons.edit, callback );
