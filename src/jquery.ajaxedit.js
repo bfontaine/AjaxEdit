@@ -46,7 +46,7 @@
             // if this is set to true, the fields' text values will
             // be preloaded. If this is set to false, their text values
             // will be loaded only if the user try to edit them.
-            preload: false
+            prefetch: false
 
         },
 
@@ -73,6 +73,64 @@
 
     }
 
+    // this is the function which will be called when the user
+    // try to edit a field
+    function edited() {
+
+        var $el = $(this);
+
+        if ( $el.data( 'edited' ) ) {
+            return;
+        }
+
+        $el.trigger( 'EditInit' )
+           .data( 'edited', true );
+
+        fetch( $el,
+             // called with the data from the server
+             function( data ) {
+
+                 if ( !$el.data( 'edited' ) ) { return; }
+
+                $el.trigger('EditOk');
+             
+             },
+             // called if there's an error
+             function( err ) {
+
+                if ( !$el.data( 'edited' ) ) { return; }
+             
+                $el.data( 'edited', false )
+                   .trigger('EditError');
+
+                //TODO callback?
+             
+             }
+        );
+    }
+
+    // called when the user cancel the edit of a field
+    function cancelEdit() {
+        $(this).data( 'edited', false )
+               .trigger( 'EditCanceled' );
+    }
+
+    // fetch $el's data from the server and pass it to
+    // the callback function
+    function fetch( $el, successCallback, errorCallback ) {
+
+        // optional additional parameters
+        var params = $el.data( 'params' ) || {};
+
+        $.ajax( $el.data( 'url' ), {
+            data: params,
+            context: $el,
+            success: successCallback,
+            error: errorCallback
+        });
+
+    }
+
     // AjaxEdit main function
     $.fn.ajaxedit = function( opts ) {
 
@@ -96,7 +154,7 @@
 
         }
 
-        if (!opts.hasOwnProperty('url')) {
+        if ( !opts.hasOwnProperty('url') || !opts['url'] ) {
 
             throw noURLException;
 
@@ -146,35 +204,18 @@
 
         $.each( fields, function( i, $field ) {
 
-            // this is the function which will be called when the user
-            // try to edit the field
-            var callback = function() {
-
-                var $el = $(this);
-
-                // if the field is currently being edited, don't do anything
-                if ( $el.data( 'edited' ) ) {
-                    return;
-                }
-
-                $el.data( 'edited', true );
-
-                // TODO
-
-            };
-
             // For each 'edit' event, bind the event to the callback
             $.each( editOn, function( i, ev ) {
 
                 // special 'event': The "Edit" button
                 if ( ev === 'hoverButton' ) {
 
-                    attachHoverButton( $field, opts.buttons.edit, callback );
+                    attachHoverButton( $field, opts.buttons.edit, edited );
                 
                 }
                 else {
 
-                    $field.bind( ev, callback );
+                    $field.bind( ev, edited );
 
                 }
 
@@ -182,6 +223,7 @@
 
             // The field is ready to be edited
             $field
+                .data( 'url', opts.url )
                 .attr( 'contenteditable', false )
                 .trigger( 'EditReady' );
 
