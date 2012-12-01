@@ -14,10 +14,10 @@ How it works
 This plugin makes AJAX calls to an URL to get/post the content. It works basically
 this way:
 
-1. The user want to edit an HTML region
-2. *AjaxEdit* get the content from your API, in Markdown
-3. The user edit the Markdown, and save
-4. *AjaxEdit* post the content to your API, and get the compiled HTML back
+1. The users want to edit an HTML region
+2. *AjaxEdit* gets the content from your API, in Markdown
+3. The user edits the Markdown, and save
+4. *AjaxEdit* posts the content to your API, and gets the compiled HTML back
 
 Example of JSON content returned by your API:
 
