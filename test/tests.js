@@ -119,4 +119,38 @@
 
     });
 
+    test( 'edit via hover button click', function() {
+
+        var $theDiv = $baseDiv.clone().appendTo(body);
+
+        ok(
+            $theDiv.ajaxedit({
+                url: '/api/no-content.json'
+            })
+        );
+
+        ok( $('input[type="button"]', $theDiv).length === 0 );
+
+        $theDiv.trigger('mouseenter');
+        ok( $('input[type="button"]', $theDiv).length === 1 );
+
+        // click on "Edit": two buttons should be displayed: "Cancel" & "Save"
+        $('input[type="button"]', $theDiv).first().trigger('click');
+
+        // waiting for the fake server response
+        stop();
+        setTimeout(function() {
+
+            ok( $('input[type="button"]', $theDiv).length === 2 );
+            ok( $theDiv.attr( 'contenteditable' ) === 'true' );
+            
+            
+            start();
+
+            $theDiv.remove();
+        }, 500);
+
+
+    });
+
 })(jQuery);
