@@ -46,93 +46,145 @@
             // if this is set to true, the fields' text values will
             // be preloaded. If this is set to false, their text values
             // will be loaded only if the user try to edit them.
-            prefetch: false
+            prefetch: false // #NotImplemented
 
         },
 
 
         // This Error is raised when no URL is provided for
         // GETting/POSTing the content
-        noURLException = new Error( 'No URL provided.' );
+        noURLException = new Error( 'No URL provided.' ),
+
+        $baseButton = $( '<input>' )
+                        .attr( 'type', 'button' )
+                        .addClass( 'ajaxedit-button' );
 
 
     // attach an "Edit" button to the element, which will be made
     // visible when the user move their mouse over the element
     function attachHoverButton( $el, label, callback ) {
 
-        var $editButton = $( '<input>' )
-                            .attr( 'type', 'button' )
-                            .addClass( 'ajaxedit-button' )
-                            .text( label )
+        var $editButton = $baseButton.clone()
+                            .attr( 'value', label )
                             .click( callback );
 
         $el.hover(
-            function() { $editButton.appendTo( $el ); },
+            function() {
+                if ( !$el.data( 'edited' ) )
+                    $editButton.appendTo( $el ); },
+
             function() { $editButton.detach(); }
         );
 
     }
 
-    // this is the function which will be called when the user
-    // try to edit a field
-    function edited() {
+    // called when the user click the "Save" button on an element
+    // (return a callback)
+    function saveEdit( opts, $el ) {
 
-        var $el = $(this);
+        return function( ev ) {
+            //TODO
+        };
 
-        if ( $el.data( 'edited' ) ) {
-            return;
-        }
+    }
 
-        $el.trigger( 'EditInit' )
-           .data( 'edited', true );
+    // called when the user cancel an edit on an element
+    function cancelEdit( opts, $el ) {
 
-        fetch( $el,
-             // called with the data from the server
-             function( data ) {
+        return function( ev ) {
+            //TODO
+        };
 
-                 if ( !$el.data( 'edited' ) ) { return; }
+    }
 
-                $el.trigger('EditOk');
+    // called when the user try to edit an element
+    // (return a callback)
+    function edited( opts, $el ) {
+    
+        return function() {
 
-                // TODO add Save/Cancel buttons and
-                // set the 'contenteditable' attribute and
-                // the text content
-             
-             },
-             // called if there's an error
-             function( err ) {
+            if ( $el.data( 'edited' ) ) {
+                return;
+            }
 
-                if ( !$el.data( 'edited' ) ) { return; }
-             
-                $el.data( 'edited', false )
-                   .trigger('EditError');
+            $el.trigger( 'EditInit' )
+               .data( 'edited', true );
 
-                //TODO callback?
-             
-             }
-        );
+            fetch( opts )( $el,
+                 // called with the data from the server
+                 function( data ) {
+
+                     if ( !$el.data( 'edited' ) ) { return; }
+
+                     // TODO get text from data
+                     var text = '';
+
+                     $el.trigger('EditOk')
+                        .text( text );
+
+                     // "Cancel" button
+                     $baseButton.clone()
+                       .attr( 'value', opts.buttons.cancel )
+                       .click( cancelEdit( opts, $el ) )
+                       .appendTo( $el );
+
+                     // "Save" button
+                     $baseButton.clone()
+                       .attr( 'value', opts.buttons.save )
+                       .click( saveEdit( opts, $el ) )
+                       .appendTo( $el );
+
+                     // FIXME: the user can erase the buttons, so we have
+                     // to display it with absolute positioning over the element,
+                     // but not in it
+                     $el.attr( 'contenteditable', true );
+                 
+                 },
+                 // called if there's an error
+                 function( err ) {
+
+                    if ( !$el.data( 'edited' ) ) { return; }
+                 
+                    $el.data( 'edited', false )
+                       .trigger('EditError');
+
+                    //TODO callback?
+                 
+                 }
+            );
+        };
     }
 
     // called when the user cancel the edit of a field
-    function cancelEdit() {
-        $(this).data( 'edited', false )
-               .trigger( 'EditCanceled' );
+    // (return a callback)
+    function cancelEdit( opts ) {
+
+        return function () {
+            $(this).data( 'edited', false )
+                   .trigger( 'EditCanceled' );
+        };
+
     }
 
     // fetch $el's data from the server and pass it to
     // the callback function
-    function fetch( $el, successCallback, errorCallback ) {
+    // (return a callback)
+    function fetch( opts ) {
 
-        // optional additional parameters
-        var params = $el.data( 'params' ) || {};
+        return function( $el, successCallback, errorCallback ) {
 
-        $.ajax( $el.data( 'url' ), {
-            data: params,
-            context: $el,
-            success: successCallback,
-            error: errorCallback
-        });
+            // optional additional parameters
+            var params = $el.data( 'params' ) || {};
 
+            $.ajax( opts.url, {
+                data: params,
+                context: $el,
+                success: successCallback,
+                error: errorCallback
+            });
+
+        };
+    
     }
 
     // AjaxEdit main function
@@ -214,12 +266,12 @@
                 // special 'event': The "Edit" button
                 if ( ev === 'hoverButton' ) {
 
-                    attachHoverButton( $field, opts.buttons.edit, edited );
+                    attachHoverButton( $field, opts.buttons.edit, edited(opts, $field) );
                 
                 }
                 else {
 
-                    $field.bind( ev, edited );
+                    $field.bind( ev, edited(opts, $field) );
 
                 }
 
@@ -227,10 +279,8 @@
 
             // The field is ready to be edited
             $field
-                .data( 'url', opts.url )
                 .attr( 'contenteditable', false )
                 .trigger( 'EditReady' );
-
         });
 
         return this;
