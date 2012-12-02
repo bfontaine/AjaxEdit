@@ -16,8 +16,8 @@
         url: '/api/hello.json',
         responseText: {
             the_text: {
-                html: '<p>Hello <i>World</i>!</p>',
-                text: 'Hello *World*!'
+                html: '<p>Hello</p>',
+                text: 'Hello'
             }
         }
     });
@@ -125,7 +125,7 @@
 
         ok(
             $theDiv.ajaxedit({
-                url: '/api/no-content.json'
+                url: '/api/hello.json'
             })
         );
 
@@ -143,11 +143,12 @@
 
             ok( $('input[type="button"]', $theDiv).length === 2 );
             ok( $theDiv.attr( 'contenteditable' ) === 'true' );
-            
+            ok( $theDiv.text() === '<p>Hello</p>' );
             
             start();
 
             $theDiv.remove();
+
         }, 500);
 
 
