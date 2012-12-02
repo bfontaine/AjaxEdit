@@ -89,10 +89,18 @@
     }
 
     // called when the user cancel an edit on an element
+    // (return a callback)
     function cancelEdit( opts, $el ) {
 
         return function( ev ) {
-            //TODO
+            console.log(_ = $el);
+            $el.find( '.ajaxedit-button' ).remove().end()
+               .attr( 'contenteditable', false )
+               .data( 'edited', false )
+               .trigger( 'EditCanceled' );
+
+            // TODO replace the current content by the original one
+
         };
 
     }
@@ -153,17 +161,6 @@
                  }
             );
         };
-    }
-
-    // called when the user cancel the edit of a field
-    // (return a callback)
-    function cancelEdit( opts ) {
-
-        return function () {
-            $(this).data( 'edited', false )
-                   .trigger( 'EditCanceled' );
-        };
-
     }
 
     // fetch $el's data from the server and pass it to
