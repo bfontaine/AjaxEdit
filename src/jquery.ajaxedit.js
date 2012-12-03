@@ -93,13 +93,11 @@
     function cancelEdit( opts, $el ) {
 
         return function( ev ) {
-            console.log(_ = $el);
             $el.find( '.ajaxedit-button' ).remove().end()
                .attr( 'contenteditable', false )
                .data( 'edited', false )
-               .trigger( 'EditCanceled' );
-
-            // TODO replace the current content by the original one
+               .trigger( 'EditCanceled' )
+               .html( $el.data( 'html' ) || '' );
 
         };
 
@@ -124,11 +122,12 @@
 
                      if ( !$el.data( 'edited' ) ) { return; }
 
-                     // TODO get text from data
-                     var text = '';
+                     var text = data[ $el.data( 'name' ) ][ opts.fields.text ];
 
-                     $el.trigger('EditOk')
-                        .text( text );
+                     $el.trigger( 'EditOk' )
+                        .text( text )
+                        .data( 'html',
+                               data[$el.data( 'name' )][opts.fields.html] );
 
                      // "Cancel" button
                      $baseButton.clone()
