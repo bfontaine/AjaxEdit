@@ -143,7 +143,7 @@
 
             ok( $('input[type="button"]', $theDiv).length === 2 );
             ok( $theDiv.attr( 'contenteditable' ) === 'true' );
-            ok( $theDiv.text() === '<p>Hello</p>' );
+            ok( $theDiv.text() === 'Hello' );
             
             start();
 
