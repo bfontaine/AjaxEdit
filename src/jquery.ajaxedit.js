@@ -71,10 +71,48 @@
         $el.hover(
             function() {
                 if ( !$el.data( 'edited' ) )
-                    $editButton.appendTo( $el ); },
+                    addButton( $el, $editButton ); },
 
-            function() { $editButton.detach(); }
+            function() { removeButton( $el, $editButton ); }
         );
+
+    }
+
+    // Add a button on an element
+    function addButton( $el, $button, position ) {
+        position = (position || 'top-right').split( '-' );
+
+        var x, y, margin = 5;
+
+        //FIXME since the button has been created on the fly,
+        // .outer(Height|Width) returns 0.
+
+        if ( position[0] === 'top' ) {
+            y = $el.offset().top + margin;
+        }
+        else if ( position[0] === 'bottom' ) {
+            y = $el.offset().top + $el.outerHeight() - margin - $button.outerHeight();
+        }
+
+        if ( position[1] === 'left' ) {
+            x = $el.offset().left + margin;
+        }
+        else if ( position[1] === 'right' ) {
+            x = $el.offset().left + $el.outerWidth() - margin - $button.outerWidth();
+        }
+
+        $button.css({
+            position: 'absolute',
+            top: y + 'px',
+            left: x + 'px'
+        }).appendTo( $el.parent() );
+
+    }
+
+    // Remove a button which is on an element
+    function removeButton( $el, $button ) {
+        
+        $button.detach();
 
     }
 
@@ -130,20 +168,15 @@
                                data[$el.data( 'name' )][opts.fields.html] );
 
                      // "Cancel" button
-                     $baseButton.clone()
-                       .attr( 'value', opts.buttons.cancel )
-                       .click( cancelEdit( opts, $el ) )
-                       .appendTo( $el );
+                     addButton( $el, $baseButton.clone()
+                                       .attr( 'value', opts.buttons.cancel )
+                                       .click( cancelEdit( opts, $el ) ) );
 
                      // "Save" button
-                     $baseButton.clone()
-                       .attr( 'value', opts.buttons.save )
-                       .click( saveEdit( opts, $el ) )
-                       .appendTo( $el );
+                     addButton( $el, $baseButton.clone()
+                                       .attr( 'value', opts.buttons.save )
+                                       .click( saveEdit( opts, $el ) ) );
 
-                     // FIXME: the user can erase the buttons, so we have
-                     // to display it with absolute positioning over the element,
-                     // but not in it
                      $el.attr( 'contenteditable', true );
                  
                  },
