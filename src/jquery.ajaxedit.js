@@ -69,9 +69,16 @@
                             .click( callback );
 
         $el.hover(
+
             function() {
-                if ( !$el.data( 'edited' ) )
-                    addButton( $el, $editButton ); },
+            
+                if ( !$el.data( 'edited' ) ) {
+                
+                    addButton( $el, $editButton );
+                
+                }
+
+            },
 
             function() { removeButton( $el, $editButton ); }
         );
@@ -80,31 +87,40 @@
 
     // Add a button on an element
     function addButton( $el, $button, position ) {
-        position = (position || 'top-right').split( '-' );
 
         var x, y, margin = 5;
+        
+        position = ( position || 'top-right' ).split( '-' );
 
         //FIXME since the button has been created on the fly,
         // .outer(Height|Width) returns 0.
 
         if ( position[0] === 'top' ) {
+
             y = $el.offset().top + margin;
-        }
-        else if ( position[0] === 'bottom' ) {
+        
+        } else if ( position[0] === 'bottom' ) {
+      
             y = $el.offset().top + $el.outerHeight() - margin - $button.outerHeight();
+        
         }
 
         if ( position[1] === 'left' ) {
+        
             x = $el.offset().left + margin;
-        }
-        else if ( position[1] === 'right' ) {
+        
+        } else if ( position[1] === 'right' ) {
+        
             x = $el.offset().left + $el.outerWidth() - margin - $button.outerWidth();
+        
         }
 
         $button.css({
+        
             position: 'absolute',
             top: y + 'px',
             left: x + 'px'
+        
         }).appendTo( $el.parent() );
 
     }
@@ -121,7 +137,9 @@
     function saveEdit( opts, $el ) {
 
         return function( ev ) {
+        
             //TODO
+        
         };
 
     }
@@ -131,6 +149,7 @@
     function cancelEdit( opts, $el ) {
 
         return function( ev ) {
+        
             $el.find( '.ajaxedit-button' ).remove().end()
                .attr( 'contenteditable', false )
                .data( 'edited', false )
@@ -147,20 +166,21 @@
     
         return function() {
 
-            if ( $el.data( 'edited' ) ) {
-                return;
-            }
+            if ( $el.data( 'edited' ) ) { return; }
 
             $el.trigger( 'EditInit' )
                .data( 'edited', true );
 
             fetch( opts )( $el,
+
                  // called with the data from the server
                  function( data ) {
 
+                     var text;
+
                      if ( !$el.data( 'edited' ) ) { return; }
 
-                     var text = data[ $el.data( 'name' ) ][ opts.fields.text ];
+                     text = data[ $el.data( 'name' ) ][ opts.fields.text ];
 
                      $el.trigger( 'EditOk' )
                         .text( text )
@@ -206,10 +226,12 @@
             var params = $el.data( 'params' ) || {};
 
             $.ajax( opts.url, {
+
                 data: params,
                 context: $el,
                 success: successCallback,
                 error: errorCallback
+            
             });
 
         };
@@ -276,16 +298,12 @@
         }
 
         // if there is no editable elements, don't do anything
-        if ( fields.length === 0 ) {
-            
-            return this;
-        
-        }
+        if ( fields.length === 0 ) { return this; }
 
         // List of events triggered when the user wants to edit an element
-        var editOn = ($.type( opts.editOn ) === 'array')
-                        ? opts.editOn
-                        : [ opts.editOn ];
+        var editOn = ( $.type( opts.editOn ) === 'array' ) ?
+                            opts.editOn :
+                                [ opts.editOn ];
 
         $.each( fields, function( i, $field ) {
 
