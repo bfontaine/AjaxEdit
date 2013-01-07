@@ -36,6 +36,8 @@
 
     test( 'no URL', function() {
 
+        $theDiv = $baseDiv.clone().appendTo(body);
+
         throws( function() { $theDiv.ajaxedit();   }         , Error);
         throws( function() { $theDiv.ajaxedit(''); }         , Error);
         throws( function() { $theDiv.ajaxedit({}); }         , Error);
@@ -141,8 +143,7 @@
         setTimeout(function() {
 
             ok( $( 'input[type="button"]', $theDiv ).length === 2 );
-            ok( $theDiv.attr( 'contenteditable' ) === 'true' );
-            ok( $theDiv.html() === 'Hello' );
+            ok( $theDiv.find( 'div[contenteditable]' ).length === 1 );
             
             start();
 
