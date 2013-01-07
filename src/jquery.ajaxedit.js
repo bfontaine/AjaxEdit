@@ -32,8 +32,8 @@
              * in your API. 
              */ 
             fields: {
-                html: 'html',
-                text: 'text'
+                html: 'html', // the name of the field for HTML
+                text: 'text'  // the name of the field for text/markup
             },
 
             // buttons' labels
@@ -54,10 +54,25 @@
         // This Error is raised when no URL is provided for
         // GETting/POSTing the content
         noURLException = new Error( 'No URL provided.' ),
+                        
+        // random key used for unique class attributes
+        key = '__' + (0|Math.random()*1000) + 'k' + +new Date(),
 
+        // button class (internal usage only)
+        button_class = key + '_button',
+        // editor div class (internal usage only)
+        editor_class = key + '_editor',
+
+        // the button base which will be used for all buttons
+        // .ajaxedit-button class is added for the user
         $baseButton = $( '<input>' )
                         .attr( 'type', 'button' )
-                        .addClass( 'ajaxedit-button' );
+                        .addClass([ 'ajaxedit-button', button_class ]),
+
+        // the editor base which will be used for all editors (divs)
+        $baseEditor = $( '<div></div>' )
+                        .attr( 'contenteditable', true )
+                        .addClass( editor_class );
 
 
     // attach an "Edit" button to the element, which will be made
@@ -86,42 +101,9 @@
     }
 
     // Add a button on an element
-    function addButton( $el, $button, position ) {
-
-        var x, y, margin = 5;
+    function addButton( $el, $button ) {
         
-        position = ( position || 'top-right' ).split( '-' );
-
-        //FIXME since the button has been created on the fly,
-        // .outer(Height|Width) returns 0.
-
-        if ( position[0] === 'top' ) {
-
-            y = $el.offset().top + margin;
-        
-        } else if ( position[0] === 'bottom' ) {
-      
-            y = $el.offset().top + $el.outerHeight() - margin - $button.outerHeight();
-        
-        }
-
-        if ( position[1] === 'left' ) {
-        
-            x = $el.offset().left + margin;
-        
-        } else if ( position[1] === 'right' ) {
-        
-            x = $el.offset().left + $el.outerWidth() - margin - $button.outerWidth();
-        
-        }
-
-        $button.css({
-        
-            position: 'absolute',
-            top: y + 'px',
-            left: x + 'px'
-        
-        }).appendTo( $el.parent() );
+        $button.appendTo( $el );
 
     }
 
@@ -150,8 +132,8 @@
 
         return function( ev ) {
         
-            $el.find( '.ajaxedit-button' ).remove().end()
-               .attr( 'contenteditable', false )
+            $el.find( button_class ).remove().end()
+               .find( editor_class ).remove().end()
                .data( 'edited', false )
                .trigger( 'EditCanceled' )
                .html( $el.data( 'html' ) || '' );
@@ -183,7 +165,7 @@
                      text = data[ $el.data( 'name' ) ][ opts.fields.text ];
 
                      $el.trigger( 'EditOk' )
-                        .text( text )
+                        .text( '' )
                         .data( 'html',
                                data[$el.data( 'name' )][opts.fields.html] );
 
@@ -197,7 +179,7 @@
                                        .attr( 'value', opts.buttons.save )
                                        .click( saveEdit( opts, $el ) ) );
 
-                     $el.attr( 'contenteditable', true );
+                     $el.append( $baseEditor.clone().text( text ) );
                  
                  },
                  // called if there's an error
