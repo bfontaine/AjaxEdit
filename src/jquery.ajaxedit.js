@@ -52,11 +52,11 @@
 
 
         // This Error is raised when no URL is provided for
-        // GETting/POSTing the content
+        // getting/posting the content
         noURLException = new Error( 'No URL provided.' ),
                         
         // random key used for unique class attributes
-        key = '__' + (0|Math.random()*1000) + 'k' + +new Date(),
+        key = '__' + ( 0|Math.random() * 1000 ) + 'k' + +new Date(),
 
         // button class (internal usage only)
         button_class = key + '_button',
