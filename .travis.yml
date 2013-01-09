@@ -1,3 +1,4 @@
-script: phantomjs ./run-qunit.js test/index.html
+before_install: npm install -g mocha mocha-phantomjs
+script: mocha-phantomjs test/index.html
 notifications:
   email: false
