@@ -12,12 +12,12 @@
     <script src="../lib/mocha.js"></script>
     <script src="../lib/chai.js"></script>
     <script>
-      mocha.ui('bdd'); 
-      mocha.reporter('html');
-      expect = chai.expect;
+      mocha.ui( 'bdd' ); 
+      mocha.reporter( 'html' );
+      var expect = chai.expect,
+          should = chai.should;
     </script>
     <script src="../lib/jquery-1.8.2.js"></script>
-    <script src="./jquery.mockjax.js"></script>
     <script src="../src/jquery.ajaxedit.js"></script>
     <script src="tests.js"></script>
     <script>(window.mochaPhantomJS ? mochaPhantomJS : mocha).run();</script> 
