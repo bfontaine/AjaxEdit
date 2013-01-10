@@ -12,58 +12,90 @@
 ;(function( $ ) {
 
 
-    var defaultOptions = {
-         
-            /* Define when the element will be set to editable mode.
-             * Possible values:
-             *      - 'hoverButton': A button labelled "Edit" will appear
-             *                       when the user put the cursor over the
-             *                       element. If they click on the button,
-             *                       the element will become editable. This
-             *                       is the default.
-             *
-             *      - Any other value will be threated as an event on the
-             *        element, e.g. "dblclick".
-             *
-             * This can be a list with multiple values.
-             */ 
-            editOn: 'hoverButton',
+    var fetch, save,
+        defaultOptions = {
 
-            /* This option allows you to have different names for the fields
-             * in your API. 
-             */ 
+            /** 
+             * Default container of the editable elements. This should be
+             * set for better performances. Can be any valid CSS selector,
+             * a DOM object or a jQuery object. If the selector match more
+             * than one element, only the first will be used.
+             **/ 
+            container: 'body',
+
+            /**
+             * This define if the plugin should automatially work on
+             * dynamically added elements.
+             **/ 
+            live: true,
+
+            /**
+             * Define when an element should be set to editable mode. The value
+             * should be the name of an event.
+             **/
+            editOn: '',
+
+            /**
+             * Define when an element’s value should be saved and the element
+             * unset from editable mode. The value should be the name of an
+             * event.
+             **/
+            saveOn: '',
+
+            /**
+             * Define when an element edition should be canceled and the
+             * element unset from editable mode. The value should be the
+             * name of an event.
+             **/
+            cancelOn: '',
+
+            /**
+             * Define the fields used to fetch/save from your API. The plugin
+             * get values from an endpoint, and post them to this endpoint. You
+             * may want to override the `fetch` & `save` functions, see the `fn`
+             * option.
+             **/
             fields: {
                 html: 'html', // the name of the field for HTML
                 text: 'text'  // the name of the field for text/markup
             },
 
-            // buttons' labels
-            labels: {
-                edit:   'Edit',
-                save:   'Save',
-                cancel: 'Cancel'
+            /**
+             * Default functions used by the plugin
+             **/
+            fn: {
+
+                /**
+                 * Function used to fetch the data for the editable elements.
+                 * The function signature should be as follow:
+                 *  fetch( url, fn )
+                 *  - url [String]: the URL to fetch
+                 *  - fn [Function]: a function, used as a callback, which
+                 *    takes two arguments: the first is the text value of
+                 *    an element, i.e. the text the user will edit, and
+                 *    the second is the html value which should be displayed
+                 *    when the element is not in edit mode.
+                 **/
+                fetch: fetch,
+
+                /**
+                 * Function used to save the data for the editable elements.
+                 * The function signature should be as follow:
+                 *  save( url, params, fn )
+                 *  - url [String]: the URL to fetch
+                 *  - params [Object]: A set of parameters, with:
+                 *      - text [String]: the value of the element
+                 *      - optionally, more parameters set with the
+                 *        `data-ajaxedit-params` attribute of the element.
+                 *  - fn [Function]: a function, used as a callback, which
+                 *    takes one argument, the html value which should be
+                 *    displayed when the element is not in edit mode.
+                 **/
+                save: save
+
             }
 
-        },
-
-        // random key used for unique class attributes
-        key = '__' + ( 0|Math.random() * 1000 ) + 'k' + +new Date(),
-
-        // button class (internal usage only)
-        button_class = key + '_button',
-        // editor div class (internal usage only)
-        editor_class = key + '_editor',
-
-        // the button base which will be used for all buttons
-        // .ajaxedit-button class is added for the user
-        $baseButton = $( '<input>' )
-                        .attr( 'type', 'button' )
-                        .addClass([ 'ajaxedit-button', button_class ]),
-
-        // the editor base which will be used for all editors (divs)
-        $baseEditor = $( '<div></div>' )
-                        .attr( 'contenteditable', true )
-                        .addClass( editor_class );
+        };
 
 
     // AjaxEdit main function
