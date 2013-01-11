@@ -97,6 +97,70 @@
 
         };
 
+    /**
+     * Default fetch function
+     **/
+    fetch = function fetchDefaultFn( url, fn, opts ) {
+
+        opts = opts || defaultOptions;
+        fn   = fn || $.noop;
+
+        // TODO handle errors
+        $.ajax( url, {
+
+            type: 'get',
+            dataType: 'json',
+            success: function( data ) {
+
+                if ( data ) {
+
+                    fn( data[ opts.fields.text ],
+                        data[ opts.fields.html ] );
+
+                } else {
+
+                    fn();
+
+                }
+
+            }
+
+        });
+
+    };
+
+    /**
+     * Default save function
+     **/
+    save = function saveDefaultFn( url, params, fn, opts ) {
+
+        params = params || {};
+        opts   = opts || defaultOptions;
+        fn     = fn || $.noop;
+
+        // TODO handle errors
+        $.ajax( url, {
+
+            type: 'post',
+            dataType: 'json',
+            data: params,
+            success: function( data ) {
+
+                if ( data ) {
+
+                    fn( data[ opts.fields.html ] );
+
+                } else {
+
+                    fn();
+
+                }
+
+            }
+
+        });
+
+    };
 
     // AjaxEdit main function
     $.fn.ajaxedit = function( o ) {
