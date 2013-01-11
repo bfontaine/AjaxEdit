@@ -24,30 +24,25 @@
             container: 'body',
 
             /**
-             * This define if the plugin should automatially work on
-             * dynamically added elements.
-             **/ 
-            live: true,
-
-            /**
              * Define when an element should be set to editable mode. The value
              * should be the name of an event.
              **/
-            editOn: '',
+            editOn: 'dblclick',
 
             /**
              * Define when an element’s value should be saved and the element
              * unset from editable mode. The value should be the name of an
              * event.
              **/
-            saveOn: '',
+            saveOn: 'blur',
 
             /**
              * Define when an element edition should be canceled and the
              * element unset from editable mode. The value should be the
-             * name of an event.
+             * name of an event. if it’s a keydown event, the key number
+             * can be specified after a colon, e.g.: "keydown:13".
              **/
-            cancelOn: '',
+            cancelOn: 'keydown:27',
 
             /**
              * Define the fields used to fetch/save from your API. The plugin
@@ -75,6 +70,7 @@
                  *    an element, i.e. the text the user will edit, and
                  *    the second is the html value which should be displayed
                  *    when the element is not in edit mode.
+                 *  - opts [Object]: the set of options passed to `.ajaxedit()`
                  **/
                 fetch: fetch,
 
@@ -90,12 +86,88 @@
                  *  - fn [Function]: a function, used as a callback, which
                  *    takes one argument, the html value which should be
                  *    displayed when the element is not in edit mode.
+                 *  - opts [Object]: the set of options passed to `.ajaxedit()`
                  **/
                 save: save
+
+            },
+
+            /**
+             * Define if each element’s values should be prefetched when the
+             * page is loaded.
+             **/
+            prefetch: false
+
+        },
+        
+        cache, bindEv,
+        editElement, saveElement, cancelElement;
+
+    /**
+     * Handle values caching (internal function).
+     *  cache( obj ) : cache `obj` and return its id
+     *  cache( id  ) : return `obj`
+     *  cache( id, field ) : return `obj[field]`
+     **/
+    cache = (function() {
+        
+        var _cache = {},
+            _cacheCount = 0;
+        
+        return function cache( id, field ) {
+
+            if ( arguments.length === 1 ) {
+            
+                if ( typeof id === 'number' ) {
+
+                    return _cache[ id ];
+                
+                }
+                else {
+
+                    _cache[ ++_cacheCount ] = id;
+                    return _cacheCount;
+
+                }
+            
+            }
+
+            if ( typeof field === 'string' && id in _cache ) {
+
+                return _cache[ id ][ field ];
 
             }
 
         };
+
+    })();
+
+    /**
+     * Listen for an event on an element, and call a function on it.
+     * This is used as a proxy to `.on` jQuery method, to handle special
+     * events like "keydown:13".
+     **/
+    bindEv = function bindEv( $el, ev, sel, fn ) {
+
+        var ev_parts = ev.split( ':' );
+
+        if ( ev_parts.length === 1 ) {
+
+            return $el.on( ev, sel, fn );
+
+        }
+
+        return $el.on( ev_parts[ 0 ], sel, function( e ) {
+
+            if ( e.keyCode === +ev_parts[1] ) {
+
+                return fn( e );
+
+            }
+
+        });
+
+    };
 
     /**
      * Default fetch function
@@ -162,11 +234,47 @@
 
     };
 
+    /**
+     * Function called when the user want to edit an element.
+     **/
+    editElement = function( ev ) {
+
+        var $e = $( ev.target );
+
+        if ( $el.data( 'ajaxedit.editMode' ) === true ) { return; }
+
+        //TODO
+    };
+
+    /**
+     * Function called when the user want to save an element.
+     **/
+    saveElement = function( ev ) {
+
+        var $e = $( ev.target );
+
+        if ( !$el.data( 'ajaxedit.editMode' ) ) { return; }
+
+        //TODO
+    };
+
+    /**
+     * Function called when the user want to cancel an element edition.
+     **/
+    cancelElement = function( ev ) {
+
+        var $e = $( ev.target );
+
+        if ( !$el.data( 'ajaxedit.editMode' ) ) { return; }
+
+        //TODO
+    };
+
     // AjaxEdit main function
     $.fn.ajaxedit = function( o ) {
 
         var opts = {},
-            url;
+            $container, url;
 
         // if the argument is a string, we assume that
         // this is the API endpoint (URL)
@@ -179,6 +287,10 @@
         else if ( typeof o === 'object' ) {
 
             opts = $.extend( true, {}, defaultOptions, o );
+
+        } else {
+
+            opts = $.extend( true, {}, defaultOptions );
 
         }
 
@@ -202,9 +314,21 @@
 
             }
 
+            $e.data( 'ajaxedit.editMode', false );
+
         });
 
-        //TODO
+        $container = $( opts.container ).first();
+
+        if ( $container.length === 0 ) {
+
+            $container = $( defaultOptions.container ).first();
+
+        }
+
+        bindEv( $container, opts.editOn  , this.selector, editElement   );
+        bindEv( $container, opts.saveOn  , this.selector, saveElement   );
+        bindEv( $container, opts.cancelOn, this.selector, cancelElement );
 
         return this;
 
