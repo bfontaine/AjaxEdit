@@ -1,7 +1,9 @@
 (function($) {
 
     // globals
-    var g = {};
+    var g = {
+        $body : $( 'body' )
+    };
 
     describe( 'Initialization', function() {
 
@@ -42,6 +44,43 @@
 
             expect( g.$baseDiv.ajaxedit({ url: 'foo' }) ).to.deep.equal( g.$baseDiv );
         
+        });
+
+        describe( 'with default options', function() {
+
+            beforeEach(function() {
+
+                g.$baseDiv = $( '<div></div>' )
+                                    .attr( 'data-fetch-uri', 'foo' )
+                                    .html( '<p>Hello!</p>' )
+                                    .appendTo( g.$body );
+
+                g.$body.off( 'dblclick' )
+                       .off( 'keydown' )
+                       .off( 'blur' );
+
+            });
+
+            afterEach(function() {
+
+                g.$baseDiv.remove();
+
+            });
+
+            it( 'should add `dblclick`, `keydown` & `blur` listeners on body',
+                        function() {
+
+                expect( $._data( g.$body[0], 'events' ) ).to.be.undefined;
+
+                g.$baseDiv.ajaxedit();
+
+                expect( $._data( g.$body[0], 'events' ) ).not.to.be.undefined;
+                expect( $._data( g.$body[0], 'events' ) ).to.include.keys(
+                                                'dblclick', 'keydown', 'blur' );
+
+
+            });
+
         });
 
     });
