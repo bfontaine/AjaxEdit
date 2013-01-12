@@ -16,24 +16,34 @@
 
         it( 'should accept the URL as an `uri` parameter', function() {
 
-            expect(function() { g.$baseDiv.ajaxedit({ uri: 'foo' }); }).to.not.throw(Error);
+            expect(function() {
+            
+                g.$baseDiv.ajaxedit({ uri: 'foo' });
+            
+            }).to.not.throw(Error);
 
         });
 
         it( 'should accept the URL as an `uri` parameter', function() {
 
-            expect(function() { g.$baseDiv.ajaxedit({ url: 'foo' }); }).to.not.throw(Error);
+            expect(function() {
+                
+                g.$baseDiv.ajaxedit({ url: 'foo' });
+            
+            }).to.not.throw(Error);
 
         });
 
-        it( 'should accept the URL as a `data-fetch-url` attribute', function() {
+        it( 'should accept the URL as '
+          + 'a `data-fetch-url` attribute', function() {
 
             g.$baseDiv.attr( 'data-fetch-url', 'foo' );
             expect(function() { g.$baseDiv.ajaxedit(); }).to.not.throw(Error);
 
         });
 
-        it( 'should accept the URL as a `data-fetch-uri` attribute', function() {
+        it( 'should accept the URL as '
+          + 'a `data-fetch-uri` attribute', function() {
 
             g.$baseDiv.attr( 'data-fetch-uri', 'foo' );
             expect(function() { g.$baseDiv.ajaxedit(); }).to.not.throw(Error);
@@ -42,7 +52,8 @@
 
         it( 'should return itself', function() {
 
-            expect( g.$baseDiv.ajaxedit({ url: 'foo' }) ).to.deep.equal( g.$baseDiv );
+            expect( g.$baseDiv.ajaxedit({ url: 'foo' }) ).to
+                                                    .deep.equal( g.$baseDiv );
         
         });
 
@@ -57,8 +68,7 @@
 
                 g.$body.off( 'dblclick' )
                        .off( 'keydown' )
-                       .off( 'blur' )
-                       .off( 'foo' );
+                       .off( 'blur' );
 
             });
 
@@ -77,20 +87,81 @@
 
                 expect( $._data( g.$body[0], 'events' ) ).not.to.be.undefined;
                 expect( $._data( g.$body[0], 'events' ) ).to.include.keys(
-                                                'dblclick', 'keydown', 'blur' );
+                                               'dblclick', 'keydown', 'blur' );
+
+            });
+        
+        });
+
+        describe( 'with custom options', function() {
+
+            beforeEach(function() {
+
+                g.$baseDiv = $( '<div></div>' )
+                                    .attr( 'data-fetch-uri', 'foo' )
+                                    .html( '<p>Hello!</p>' )
+                                    .appendTo( g.$body );
+
+                g.$body.off( 'dblclick' ).off( 'keydown' ).off( 'blur' )
+                       .off( 'foo' ).off( 'boo' ).off( 'bar' );
 
             });
 
-            it( 'should accept other events from the options arg', function() {
+            afterEach(function() {
+
+                g.$baseDiv.remove();
+
+            });
+
+
+            it( 'should accept other events '
+              + 'from the options argument', function() {
 
                 expect( $._data( g.$body[0], 'events' ) ).to.be.undefined;
 
-                g.$baseDiv.ajaxedit({ editOn: 'foo' });
+                g.$baseDiv.ajaxedit({ editOn: 'foo',
+                                      saveOn: 'bar',
+                                      cancelOn: 'boo' });
 
                 expect( $._data( g.$body[0], 'events' ) ).not.to.be.undefined;
                 expect( $._data( g.$body[0], 'events' ) ).to.include.keys(
-                                                'foo', 'keydown', 'blur' );
+                                                'foo', 'boo', 'bar' );
                 
+            });
+
+            it( 'should accept special keydown events '
+              + 'from the options argument', function() {
+
+                expect( $._data( g.$body[0], 'events' ) ).to.be.undefined;
+
+                g.$baseDiv.ajaxedit({ editOn: 'keydown:1',
+                                      saveOn: 'keydown:2',
+                                      cancelOn: 'keydown:3' });
+
+                expect( $._data( g.$body[0], 'events' ) ).not.to.be.undefined;
+                expect( $._data( g.$body[0], 'events' ) ).to.include
+                                                            .keys( 'keydown' );
+
+            });
+
+            it( 'should accept a different container', function() {
+
+                g.$baseDiv.detach();
+
+                var $c = $( '<div></div>' )
+                        .append( g.$baseDiv )
+                        .appendTo( g.$body );
+
+                expect( $._data( g.$body[0], 'events' ) ).to.be.undefined;
+                expect( $._data( $c[0], 'events' ) ).to.be.undefined;
+
+                g.$baseDiv.ajaxedit({ container: $c });
+
+                expect( $._data( g.$body[0], 'events' ) ).to.be.undefined;
+                expect( $._data( $c[0], 'events' ) ).not.to.be.undefined;
+                expect( $._data( $c[0], 'events' ) ).to.include
+                                        .keys( 'keydown', 'dblclick', 'blur' );
+
             });
 
         });
