@@ -320,6 +320,21 @@
 
             $e.data( 'ajaxedit.editMode', false );
 
+            if ( opts.prefetch ) {
+
+                fetch( $e.data( 'ajaxedit.url' ), {}, function( text, html ) {
+
+                    $e.data( 'ajaxedit.id', cache({
+
+                        text: text,
+                        html: html
+
+                    }));
+
+                });
+
+            }
+
         });
 
         $container = $( opts.container ).first();
