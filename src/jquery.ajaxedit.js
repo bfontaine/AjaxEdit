@@ -63,8 +63,11 @@
                 /**
                  * Function used to fetch the data for the editable elements.
                  * The function signature should be as follow:
-                 *  fetch( url, fn )
+                 *  fetch( url, params fn )
                  *  - url [String]: the URL to fetch
+                 *  - params [Object]: A set of parameters, empty right now, but
+                 *    may be used in the future. These parameters should be sent
+                 *    along with the fetch request.
                  *  - fn [Function]: a function, used as a callback, which
                  *    takes two arguments: the first is the text value of
                  *    an element, i.e. the text the user will edit, and
@@ -172,7 +175,7 @@
     /**
      * Default fetch function
      **/
-    fetch = function fetchDefaultFn( url, fn, opts ) {
+    fetch = function fetchDefaultFn( url, params, fn, opts ) {
 
         opts = opts || defaultOptions;
         fn   = fn || $.noop;
@@ -182,6 +185,7 @@
 
             type: 'get',
             dataType: 'json',
+            data: params,
             success: function( data ) {
 
                 if ( data ) {
