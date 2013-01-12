@@ -50,6 +50,16 @@
 
         });
 
+        it( 'should prefer the `data-fetch-uri|url` '
+          + 'over the `uri|url` parameter', function() {
+
+            g.$baseDiv.attr( 'data-fetch-uri', 'foo' );
+            g.$baseDiv.ajaxedit({ uri: 'bar' });
+
+            expect( g.$baseDiv.data( 'ajaxedit.url' ) ).to.equal( 'foo' );
+
+        });
+
         it( 'should return itself', function() {
 
             expect( g.$baseDiv.ajaxedit({ url: 'foo' }) ).to
@@ -98,7 +108,7 @@
             beforeEach(function() {
 
                 g.$baseDiv = $( '<div></div>' )
-                                    .attr( 'data-fetch-uri', 'foo' )
+                                    .attr( 'data-fetch-uri', '/test.json' )
                                     .html( '<p>Hello!</p>' )
                                     .appendTo( g.$body );
 
@@ -161,6 +171,22 @@
                 expect( $._data( $c[0], 'events' ) ).not.to.be.undefined;
                 expect( $._data( $c[0], 'events' ) ).to.include
                                         .keys( 'keydown', 'dblclick', 'blur' );
+
+            });
+
+            it( 'should prefetch the data '
+              + 'if the `prefetch` option is truthy', function( done ) {
+
+                $.mockjax({
+                    url: '/test.json',
+                    response: function() {
+                        this.responseText = { html:'', text:'' };
+                        done();
+                    },
+                    log: false
+                });
+
+                g.$baseDiv.ajaxedit({ prefetch: true });
 
             });
 
