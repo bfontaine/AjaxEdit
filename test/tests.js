@@ -57,7 +57,8 @@
 
                 g.$body.off( 'dblclick' )
                        .off( 'keydown' )
-                       .off( 'blur' );
+                       .off( 'blur' )
+                       .off( 'foo' );
 
             });
 
@@ -78,7 +79,18 @@
                 expect( $._data( g.$body[0], 'events' ) ).to.include.keys(
                                                 'dblclick', 'keydown', 'blur' );
 
+            });
 
+            it( 'should accept other events from the options arg', function() {
+
+                expect( $._data( g.$body[0], 'events' ) ).to.be.undefined;
+
+                g.$baseDiv.ajaxedit({ editOn: 'foo' });
+
+                expect( $._data( g.$body[0], 'events' ) ).not.to.be.undefined;
+                expect( $._data( g.$body[0], 'events' ) ).to.include.keys(
+                                                'foo', 'keydown', 'blur' );
+                
             });
 
         });
