@@ -177,15 +177,23 @@
      **/
     fetch = function fetchDefaultFn( url, params, fn, opts ) {
 
+        var err_fn = $.noop;
+
         opts = opts || defaultOptions;
         fn   = fn || $.noop;
 
-        // TODO handle errors
+        if ( typeof opts.error === 'function' ) {
+
+            err_fn = opts.error;
+
+        }
+
         $.ajax( url, {
 
             type: 'get',
             dataType: 'json',
             data: params,
+            error: err_fn,
             success: function( data ) {
 
                 if ( data ) {
@@ -195,7 +203,7 @@
 
                 } else {
 
-                    fn();
+                    err_fn('No data');
 
                 }
 
@@ -210,16 +218,24 @@
      **/
     save = function saveDefaultFn( url, params, fn, opts ) {
 
+        var err_fn = $.noop;
+
         params = params || {};
         opts   = opts || defaultOptions;
         fn     = fn || $.noop;
 
-        // TODO handle errors
+        if ( typeof opts.error === 'function' ) {
+
+            err_fn = opts.error;
+
+        }
+
         $.ajax( url, {
 
             type: 'post',
             dataType: 'json',
             data: params,
+            error: err_fn,
             success: function( data ) {
 
                 if ( data ) {
