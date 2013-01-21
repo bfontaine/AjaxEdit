@@ -190,6 +190,21 @@
 
             });
 
+            it( 'should use the given `fetch` function', function( done ) {
+
+                g.$baseDiv.ajaxedit({
+                    
+                    prefetch: true,
+                    fn: {
+                        fetch: function() {
+                            done();
+                        }
+                    }
+
+                });
+
+            });
+
         });
 
     });
