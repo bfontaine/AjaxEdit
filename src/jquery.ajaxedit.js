@@ -12,8 +12,7 @@
 ;(function( $ ) {
 
 
-    var fetch, save,
-        defaultOptions = {
+    var defaultOptions = {
 
             /** 
              * Default container of the editable elements. This should be
@@ -75,7 +74,7 @@
                  *    when the element is not in edit mode.
                  *  - opts [Object]: the set of options passed to `.ajaxedit()`
                  **/
-                fetch: fetch,
+                fetch: undefined,
 
                 /**
                  * Function used to save the data for the editable elements.
@@ -91,7 +90,7 @@
                  *    displayed when the element is not in edit mode.
                  *  - opts [Object]: the set of options passed to `.ajaxedit()`
                  **/
-                save: save
+                save: undefined
 
             },
 
@@ -175,7 +174,7 @@
     /**
      * Default fetch function
      **/
-    fetch = function fetchDefaultFn( url, params, fn, opts ) {
+    defaultOptions.fn.fetch =  function fetchDefaultFn( url, params, fn, opts ) {
 
         var err_fn = $.noop;
 
@@ -216,7 +215,7 @@
     /**
      * Default save function
      **/
-    save = function saveDefaultFn( url, params, fn, opts ) {
+    defaultOptions.fn.save = function saveDefaultFn( url, params, fn, opts ) {
 
         var err_fn = $.noop;
 
@@ -294,7 +293,9 @@
     $.fn.ajaxedit = function( o ) {
 
         var opts = {},
-            $container, url;
+            $container, url,
+            
+            fetchFn, saveFn;
 
         // if the argument is a string, we assume that
         // this is the API endpoint (URL)
@@ -315,6 +316,9 @@
         }
 
         url = opts.url || opts.uri;
+
+        fetchFn = opts.fn.fetch;
+        saveFn  = opts.fn.save;
 
         this.each(function( i, e ) {
 
@@ -338,7 +342,7 @@
 
             if ( opts.prefetch ) {
 
-                fetch( $e.data( 'ajaxedit.url' ), {}, function( text, html ) {
+                fetchFn( $e.data( 'ajaxedit.url' ), {}, function( text, html ) {
 
                     $e.data( 'ajaxedit.id', cache({
 
