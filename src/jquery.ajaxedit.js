@@ -55,46 +55,6 @@
             },
 
             /**
-             * Default functions used by the plugin
-             **/
-            fn: {
-
-                /**
-                 * Function used to fetch the data for the editable elements.
-                 * The function signature should be as follow:
-                 *  fetch( url, params fn )
-                 *  - url [String]: the URL to fetch
-                 *  - params [Object]: A set of parameters, empty right now, but
-                 *    may be used in the future. These parameters should be sent
-                 *    along with the fetch request.
-                 *  - fn [Function]: a function, used as a callback, which
-                 *    takes two arguments: the first is the text value of
-                 *    an element, i.e. the text the user will edit, and
-                 *    the second is the html value which should be displayed
-                 *    when the element is not in edit mode.
-                 *  - opts [Object]: the set of options passed to `.ajaxedit()`
-                 **/
-                fetch: undefined,
-
-                /**
-                 * Function used to save the data for the editable elements.
-                 * The function signature should be as follow:
-                 *  save( url, params, fn )
-                 *  - url [String]: the URL to fetch
-                 *  - params [Object]: A set of parameters, with:
-                 *      - text [String]: the value of the element
-                 *      - optionally, more parameters set with the
-                 *        `data-ajaxedit-params` attribute of the element.
-                 *  - fn [Function]: a function, used as a callback, which
-                 *    takes one argument, the html value which should be
-                 *    displayed when the element is not in edit mode.
-                 *  - opts [Object]: the set of options passed to `.ajaxedit()`
-                 **/
-                save: undefined
-
-            },
-
-            /**
              * Define if each element’s values should be prefetched when the
              * page is loaded.
              **/
@@ -235,7 +195,7 @@
     /**
      * Default fetch function
      **/
-    defaultOptions.fn.fetch = function fetchDefaultFn( url, params, fn, opts ) {
+    function fetch( url, params, fn, opts ) {
 
         var err_fn = $.noop;
 
@@ -276,7 +236,7 @@
     /**
      * Default save function
      **/
-    defaultOptions.fn.save = function saveDefaultFn( url, params, fn, opts ) {
+    function save( url, params, fn, opts ) {
 
         var err_fn = $.noop;
 
@@ -317,7 +277,7 @@
     /**
      * Function called when the user want to edit an element.
      **/
-    editElement = function( fetchFn, ev ) {
+    editElement = function( ev ) {
 
         var $el   = $( ev.target ),
             eType = getTN( $el[ 0 ] ),
@@ -375,7 +335,7 @@
             
         } else {
 
-            fetchFn( $el.data( NS + '.url' ), {}, function( text, html ) {
+            fetch( $el.data( NS + '.url' ), {}, function( text, html ) {
 
                 editCallback({ text: text, html: html });
 
@@ -390,7 +350,7 @@
     /**
      * Function called when the user want to save an element.
      **/
-    saveElement = function( saveFn, ev ) {
+    saveElement = function( save, ev ) {
 
         var $e = $( ev.target );
 
@@ -415,9 +375,7 @@
     $.fn.ajaxedit = function( o ) {
 
         var opts = {},
-            $container, url,
-            
-            fetchFn, saveFn;
+            $container, url;
 
         // if the argument is a string, we assume that
         // this is the API endpoint (URL)
@@ -438,9 +396,6 @@
         }
 
         url = opts.url || opts.uri;
-
-        fetchFn = opts.fn.fetch;
-        saveFn  = opts.fn.save;
 
         this.each(function( i, e ) {
 
@@ -464,7 +419,7 @@
 
                 $e.data( NS + '.fetching', true );
 
-                fetchFn( $e.data( NS + '.url' ), {}, function( text, html ) {
+                fetch( $e.data( NS + '.url' ), {}, function( text, html ) {
 
                     $e.data( NS + '.id', cache({
 
@@ -496,12 +451,12 @@
         bindEv( $container,
                 opts.editOn,
                 this.selector,
-                editElement.bind( this, fetchFn ) );
+                editElement );
         
         bindEv( $container,
                 opts.saveOn,
                 this.selector,
-                saveElement.bind( this, saveFn ) );
+                saveElement );
         
         bindEv( $container,
                 opts.cancelOn,
