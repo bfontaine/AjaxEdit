@@ -1,0 +1,26 @@
+{
+    "name": "ajaxedit",
+    "version": "0.0.0",
+    "title": "AjaxEdit",
+    "author": {
+        "name": "Baptiste Fontaine",
+        "url": "http://bfontaine.net"
+    },
+    "description": "jQuery plugin to edit HTML parts of a page without reloading the page.",
+    "bugs": "https://github.com/bfontaine/AjaxEdit/issues",
+    "homepage": "https://github.com/bfontaine/AjaxEdit",
+    "docs": "https://github.com/bfontaine/AjaxEdit",
+    "keywords": [
+        "ajax",
+        "edit"
+    ],
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://raw.github.com/bfontaine/AjaxEdit/master/LICENCE"
+        }
+    ],
+    "dependencies": {
+        "jquery": ">=1.8.2"
+    }
+}
