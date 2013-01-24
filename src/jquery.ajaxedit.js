@@ -1,4 +1,4 @@
-/**!
+/*!
  * AjaxEdit v0.0.1
  *
  * Lightweight jQuery plugin used to edit HTML regions without reloading
@@ -101,9 +101,23 @@
             prefetch: false
 
         },
+
+        /**
+         * Namespace used for jQuery data bindings & events
+         **/
+        NS = 'ajaxedit',
         
         cache, bindEv,
-        editElement, saveElement, cancelElement;
+        editElement, saveElement, cancelElement,
+        
+        // supported inline elements
+        inlineEls = 'b,big,i,small,tt,abbr,acronym,cite,code,dfn,em,kbd,'
+                  + 'strong,samp,a,q,span,sub,sup,label'.split( ',' ),
+
+        // supported block elements
+        blockEls = 'address,article,aside,blockquote,dd,div,fieldset,'
+                 + 'figcaption,figcaption,footer,form,h1,h2,h3,h4,h5,h6,'
+                 + 'header,hgroup,output,p,pre,section'.split( ',' );
 
     /**
      * Handle values caching (internal function).
@@ -171,10 +185,50 @@
 
     };
 
+    // Helpers
+
+    /**
+     * Return an element's tag name
+     **/
+    function getTN( e ) {
+
+        return e ? e.nodeName ? e.nodeName.toLocaleLowerCase() : '' : '';
+    
+    }
+
+    /**
+     * Return `true` if this element has a supported block tag
+     **/
+    function isSupportedBlockEl( e ) {
+
+        return $.inArray( getTN( e ), blockEls );
+
+    }
+
+    /**
+     * Return `true` if this element has a supported inline tag
+     **/
+    function isSupportedInlineEl( e ) {
+
+        return $.inArray( getTN( e ), inlineEls );
+
+    }
+
+    /**
+     * Return `true` if this element has a supported tag
+     **/
+    function isSupportedEl( e ) {
+
+        return isSupportedBlockEl( e ) || isSupportedInlineEl( e );
+
+    }
+
+    // /Helpers
+
     /**
      * Default fetch function
      **/
-    defaultOptions.fn.fetch =  function fetchDefaultFn( url, params, fn, opts ) {
+    defaultOptions.fn.fetch = function fetchDefaultFn( url, params, fn, opts ) {
 
         var err_fn = $.noop;
 
@@ -258,11 +312,41 @@
      **/
     editElement = function( ev ) {
 
-        var $e = $( ev.target );
+        var $el   = $( ev.target ),
+            eType = getTN( $el[ 0 ] ),
+            editor;
 
-        if ( $el.data( 'ajaxedit.editMode' ) === true ) { return; }
+        if (  !$el.data( NS + '.enabled' )
+            || $el.data( NS + '.editMode' )) {
+                
+                return;
+        
+        }
 
-        //TODO
+        ev.stopPropagation();
+
+        //TODO fetch content...
+
+        if ( eType === 'input' || eType === 'textarea' ) {
+
+           editor = $el.removeAttr( 'disabled' );
+
+        } else {
+
+            if ( !( editor = $el.data( NS + '.editor' ) ) ) {
+
+                $el.data( NS + '.editor',
+                          editor = $( '<' + eType + '/>' )
+                                  .attr( 'contenteditable', true )
+                                  .addClass( 'ajaxedit-editor' ));
+
+            }
+
+        }
+
+        //TODO ...putting it in the `editor` element
+
+        $el.data( NS + '.editMode', true );
     };
 
     /**
@@ -272,7 +356,7 @@
 
         var $e = $( ev.target );
 
-        if ( !$el.data( 'ajaxedit.editMode' ) ) { return; }
+        if ( !$el.data( NS + '.editMode' ) ) { return; }
 
         //TODO
     };
@@ -284,7 +368,7 @@
 
         var $e = $( ev.target );
 
-        if ( !$el.data( 'ajaxedit.editMode' ) ) { return; }
+        if ( !$el.data( NS + '.editMode' ) ) { return; }
 
         //TODO
     };
@@ -324,13 +408,15 @@
 
             var $e = $( e ), u;
 
+            if ( !isSupportedEl( e ) ) { return; }
+
             if (u = ( $e.data( 'fetchUrl' ) || $e.data( 'fetchUri' ) ) ) {
 
-                $e.data( 'ajaxedit.url', u.trim() );
+                $e.data( NS + '.url', u.trim() );
 
             } else if ( url ) {
 
-                $e.data( 'ajaxedit.url', url.trim() );
+                $e.data( NS + '.url', url.trim() );
 
             } else {
 
@@ -338,22 +424,29 @@
 
             }
 
-            $e.data( 'ajaxedit.editMode', false );
+            $e.data( NS + '.editMode', false );
 
             if ( opts.prefetch ) {
 
-                fetchFn( $e.data( 'ajaxedit.url' ), {}, function( text, html ) {
+                $e.data( NS + '.fetching', true );
 
-                    $e.data( 'ajaxedit.id', cache({
+                fetchFn( $e.data( NS + '.url' ), {}, function( text, html ) {
+
+                    $e.data( NS + '.id', cache({
 
                         text: text,
                         html: html
 
                     }));
 
+                    $e.data( NS + '.fetching', false );
+                    $e.trigger( NS + '.fetched' );
+
                 });
 
             }
+
+            $e.data( NS + '.enabled', true );
 
         });
 
