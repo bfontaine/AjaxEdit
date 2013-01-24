@@ -1,11 +1,11 @@
 (function($) {
 
     // globals
-    var g = {
-        $body : $( 'body' )
-    };
+    var $body = $( 'body' );
 
     describe( 'Initialization', function() {
+
+        var g = { '$body': $body };
 
         beforeEach(function() {
 
@@ -16,21 +16,15 @@
 
         it( 'should accept the URL as an `uri` parameter', function() {
 
-            expect(function() {
-            
-                g.$baseDiv.ajaxedit({ uri: 'foo' });
-            
-            }).to.not.throw(Error);
+            g.$baseDiv.ajaxedit({ uri: 'foo' });
+            expect( g.$baseDiv.data( 'ajaxedit.enabled' ) ).to.be.true;
 
         });
 
         it( 'should accept the URL as an `uri` parameter', function() {
 
-            expect(function() {
-                
-                g.$baseDiv.ajaxedit({ url: 'foo' });
-            
-            }).to.not.throw(Error);
+            g.$baseDiv.ajaxedit({ url: 'foo' });
+            expect( g.$baseDiv.data( 'ajaxedit.enabled' ) ).to.be.true;
 
         });
 
@@ -38,7 +32,8 @@
           + 'a `data-fetch-url` attribute', function() {
 
             g.$baseDiv.attr( 'data-fetch-url', 'foo' );
-            expect(function() { g.$baseDiv.ajaxedit(); }).to.not.throw(Error);
+            g.$baseDiv.ajaxedit();
+            expect( g.$baseDiv.data( 'ajaxedit.enabled' ) ).to.be.true;
 
         });
 
@@ -46,7 +41,8 @@
           + 'a `data-fetch-uri` attribute', function() {
 
             g.$baseDiv.attr( 'data-fetch-uri', 'foo' );
-            expect(function() { g.$baseDiv.ajaxedit(); }).to.not.throw(Error);
+            g.$baseDiv.ajaxedit();
+            expect( g.$baseDiv.data( 'ajaxedit.enabled' ) ).to.be.true;
 
         });
 
@@ -68,6 +64,8 @@
         });
 
         describe( 'with default options', function() {
+
+            var g = { '$body': $body };
 
             beforeEach(function() {
 
@@ -105,7 +103,11 @@
 
         describe( 'with custom options', function() {
 
+            var g = { '$body': $body };
+
             beforeEach(function() {
+
+                $.mockjaxClear();
 
                 g.$baseDiv = $( '<div></div>' )
                                     .attr( 'data-fetch-uri', '/test.json' )
@@ -196,7 +198,8 @@
                     
                     prefetch: true,
                     fn: {
-                        fetch: function() {
+                        fetch: function( e, f, g ) {
+                            console.log( e, f, g )
                             done();
                         }
                     }
@@ -211,10 +214,12 @@
 
     describe( 'Edit Mode', function() {
 
+        var g = { '$body': $body };
+
         beforeEach(function() {
 
             g.$baseDiv = $( '<div></div>' )
-                                .attr( 'data-fetch-uri', '/test.json' )
+                                .attr( 'data-fetch-uri', '/test2.json' )
                                 .html( '<p>Hello!</p>' )
                                 .appendTo( g.$body );
 
@@ -227,14 +232,27 @@
         });
 
         it( 'should set the ajaxedit.editMode '
-          + 'jQuery data attribute to true', function() {
+          + 'jQuery data attribute to true', function( done ) {
 
-            g.$baseDiv.ajaxedit()
-                      .trigger( 'dblclick' );
+               $.mockjax({
+                   url: '/test2.json',
+                   response: function() {
+                       this.responseText = { html:'', text:'' };
+                   },
+                   log: false
+               });
 
-            expect( g.$baseDiv.data( 'ajaxedit.editMode' ) ).to.be.truthy;
+               g.$baseDiv.ajaxedit()
+                         .trigger( 'dblclick' );
 
-        });
+             setTimeout(function() {
+
+                 expect( g.$baseDiv.data( 'ajaxedit.editMode' ) ).to.be.true;
+                 done();
+
+             }, 500);
+
+           });
 
     });
 

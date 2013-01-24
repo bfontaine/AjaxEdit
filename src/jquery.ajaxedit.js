@@ -122,6 +122,7 @@
     /**
      * Handle values caching (internal function).
      *  cache( obj ) : cache `obj` and return its id
+     *  cache( id, obj ) : cache `obj` and use `id` as its id
      *  cache( id  ) : return `obj`
      *  cache( id, field ) : return `obj[field]`
      **/
@@ -151,6 +152,12 @@
             if ( typeof field === 'string' && id in _cache ) {
 
                 return _cache[ id ][ field ];
+
+            }
+            if ( typeof field === 'object' ) {
+
+                _cache[ id ] = field;
+                return id;
 
             }
 
@@ -310,11 +317,11 @@
     /**
      * Function called when the user want to edit an element.
      **/
-    editElement = function( ev ) {
+    editElement = function( fetchFn, ev ) {
 
         var $el   = $( ev.target ),
             eType = getTN( $el[ 0 ] ),
-            editor;
+            $editor, editCallback;
 
         if (  !$el.data( NS + '.enabled' )
             || $el.data( NS + '.editMode' )) {
@@ -325,34 +332,65 @@
 
         ev.stopPropagation();
 
-        //TODO fetch content...
+        editCallback = function( ct ) {
 
-        if ( eType === 'input' || eType === 'textarea' ) {
+            if ( eType === 'input' || eType === 'textarea' ) {
 
-           editor = $el.removeAttr( 'disabled' );
+                $editor = $el.removeAttr( 'disabled' ).val( ct.text );
 
-        } else {
+            } else {
 
-            if ( !( editor = $el.data( NS + '.editor' ) ) ) {
+                if ( !( $editor = $el.data( NS + '.editor' ) ) ) {
 
-                $el.data( NS + '.editor',
-                          editor = $( '<' + eType + '/>' )
-                                  .attr( 'contenteditable', true )
-                                  .addClass( 'ajaxedit-editor' ));
+                    $el.data( NS + '.editor',
+                              $editor = $( '<' + eType + '/>' )
+                                      .attr( 'contenteditable', true )
+                                      .addClass( 'ajaxedit-editor' ));
+
+                }
+
+                $editor.appendTo( $el.text( '' ) ).text( ct.text );
 
             }
 
+            $el.data( NS + '.editMode', true );
+            cache( $el.data( NS + '.id' ), ct );
+
+        };
+
+        if ( $el.data( NS + '.prefetched' ) ) {
+
+            $el.removeData( NS + '.prefetched' );
+
+            editCallback( cache( $el.data( NS + '.id' ) ) );
+
+        }
+        else if ( $el.data( NS + '.fetching' ) ) {
+
+            $el.one( NS + '.fetched', function() {
+
+                editCallback( cache( $el.data( NS + '.id' ) ) );
+
+            });
+            
+        } else {
+
+            fetchFn( $el.data( NS + '.url' ), {}, function( text, html ) {
+
+                editCallback({ text: text, html: html });
+
+            });
+
+
         }
 
-        //TODO ...putting it in the `editor` element
 
-        $el.data( NS + '.editMode', true );
     };
 
     /**
      * Function called when the user want to save an element.
      **/
-    saveElement = function( ev ) {
+    saveElement = function( saveFn, ev ) {
 
         var $e = $( ev.target );
 
@@ -418,11 +456,7 @@
 
                 $e.data( NS + '.url', url.trim() );
 
-            } else {
-
-                throw new Error( 'No URL provided.' );
-
-            }
+            } else { return; } // no URL
 
             $e.data( NS + '.editMode', false );
 
@@ -439,6 +473,7 @@
 
                     }));
 
+                    $e.data( NS + '.prefetched', true );
                     $e.data( NS + '.fetching', false );
                     $e.trigger( NS + '.fetched' );
 
@@ -458,9 +493,20 @@
 
         }
 
-        bindEv( $container, opts.editOn  , this.selector, editElement   );
-        bindEv( $container, opts.saveOn  , this.selector, saveElement   );
-        bindEv( $container, opts.cancelOn, this.selector, cancelElement );
+        bindEv( $container,
+                opts.editOn,
+                this.selector,
+                editElement.bind( this, fetchFn ) );
+        
+        bindEv( $container,
+                opts.saveOn,
+                this.selector,
+                saveElement.bind( this, saveFn ) );
+        
+        bindEv( $container,
+                opts.cancelOn,
+                this.selector,
+                cancelElement );
 
         return this;
 
