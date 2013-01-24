@@ -209,4 +209,33 @@
 
     });
 
+    describe( 'Edit Mode', function() {
+
+        beforeEach(function() {
+
+            g.$baseDiv = $( '<div></div>' )
+                                .attr( 'data-fetch-uri', '/test.json' )
+                                .html( '<p>Hello!</p>' )
+                                .appendTo( g.$body );
+
+        });
+
+        afterEach(function() {
+
+            g.$baseDiv.remove();
+
+        });
+
+        it( 'should set the ajaxedit.editMode '
+          + 'jQuery data attribute to true', function() {
+
+            g.$baseDiv.ajaxedit()
+                      .trigger( 'dblclick' );
+
+            expect( g.$baseDiv.data( 'ajaxedit.editMode' ) ).to.be.truthy;
+
+        });
+
+    });
+
 })(jQuery);
