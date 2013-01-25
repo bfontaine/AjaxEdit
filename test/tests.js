@@ -14,6 +14,18 @@
 
         });
 
+        it( 'should add a .ajaxedit method on $.fn', function() {
+
+            expect( typeof $.fn.ajaxedit ).to.equal( 'function' );
+
+        });
+
+        it( 'should add a :ajaxedit custom selector', function() {
+
+            expect( typeof $.expr[ ':' ].ajaxedit ).to.equal( 'function' );
+
+        });
+
         it( 'should accept the URL as an `uri` parameter', function() {
 
             g.$baseDiv.ajaxedit({ uri: 'foo' });
