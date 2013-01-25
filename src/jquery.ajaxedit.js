@@ -354,7 +354,7 @@
         } else {
 
             fetch( $el.data( NS + '.url' ),
-                   $el.data( 'ajaxeditFetchParams' ) || {},
+                   JSON.parse( $el.data( 'ajaxeditFetchParams' ) || '{}' ),
                    function( text, html ) {
 
                 editCallback({ text: text, html: html });
@@ -389,7 +389,7 @@
 
         }
 
-        params = $el.data( 'ajaxeditSaveParams' ) || {};
+        params = JSON.parse( $el.data( 'ajaxeditSaveParams' ) || '{}' );
         params.text = text;
 
         save( $el.data( NS + '.url' ), params, function( html ) {
