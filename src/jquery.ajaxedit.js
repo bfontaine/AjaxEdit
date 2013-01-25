@@ -471,7 +471,7 @@
 
         this.each(function( i, e ) {
 
-            var $e = $( e ), u;
+            var $e = $( e ), u, params;
 
             if ( !isSupportedEl( e ) ) { return; }
 
@@ -508,9 +508,26 @@
 
             }
 
-            $e.data( NS + '.params',
-                          JSON.parse( $e.data( 'ajaxeditParams' ) || '{}' ) );
+            params = $e.data( 'ajaxeditParams' );
 
+            if ( typeof params === 'string' ) {
+
+                try {
+                    
+                    params = JSON.parse( params );
+
+                catch(e) {
+                    params = { params: params };
+                }
+
+            }
+            else if ( params === undefined ) {
+
+                params = {};
+
+            }
+
+            $e.data( NS + '.params', params );
             $e.data( NS + '.enabled', true );
 
         });
