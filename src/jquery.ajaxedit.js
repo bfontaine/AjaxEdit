@@ -516,7 +516,7 @@
                     
                     params = JSON.parse( params );
 
-                catch(e) {
+                } catch(e) {
                     params = { params: params };
                 }
 
