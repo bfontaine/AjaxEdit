@@ -7,19 +7,17 @@
         </head>
         <body>
 
-            <div id="e" data-name="e" style="border:2px solid #000;min-height:50px;max-width:200px;">Foo</div>
+            <div id="e" style="border:2px solid #000;min-height:50px;max-width:200px;">Edit Me</div>
 
             <script src="../lib/jquery-1.8.2.js"></script>
-            <script src="./jquery.mockjax.js"></script>
+            <script src="../lib/jquery.mockjax.js"></script>
             <script src="../src/jquery.ajaxedit.js"></script>
             <script>
                 $.mockjax({
                     url: '/test.json',
                     responseText: {
-                        'e': {
-                            html: '<p>OK</p>',
-                            text: 'foo'
-                        }
+                        html: '<p><b>OK</b></p>',
+                        text: '_OK_'
                     }
                 });
                 $('#e').ajaxedit( '/test.json' );
