@@ -71,13 +71,13 @@
         editElement, saveElement, cancelElement,
         
         // supported inline elements
-        inlineEls = 'b,big,i,small,tt,abbr,acronym,cite,code,dfn,em,kbd,'
-                  + 'strong,samp,a,q,span,sub,sup,label'.split( ',' ),
+        inlineEls = ( 'b,big,i,small,tt,abbr,acronym,cite,code,dfn,em,kbd,'
+                    + 'strong,samp,a,q,span,sub,sup,label' ).split( ',' ),
 
         // supported block elements
-        blockEls = 'address,article,aside,blockquote,dd,div,fieldset,'
-                 + 'figcaption,figcaption,footer,form,h1,h2,h3,h4,h5,h6,input,'
-                 + 'header,hgroup,output,p,pre,section,textarea'.split( ',' );
+        blockEls = ( 'address,article,aside,blockquote,dd,div,fieldset,'
+                   + 'figcaption,figcaption,footer,form,h1,h2,h3,h4,h5,h6,input,'
+                   + 'header,hgroup,output,p,pre,section,textarea' ).split( ',' );
 
     /**
      * Handle values caching (internal function).
@@ -177,7 +177,7 @@
      **/
     function isSupportedBlockEl( e ) {
 
-        return $.inArray( getTN( e ), blockEls );
+        return $.inArray( getTN( e ), blockEls ) !== -1;
 
     }
 
@@ -186,7 +186,7 @@
      **/
     function isSupportedInlineEl( e ) {
 
-        return $.inArray( getTN( e ), inlineEls );
+        return $.inArray( getTN( e ), inlineEls ) !== -1;
 
     }
 
