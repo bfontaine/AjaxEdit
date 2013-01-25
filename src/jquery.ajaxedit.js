@@ -353,7 +353,9 @@
             
         } else {
 
-            fetch( $el.data( NS + '.url' ), {}, function( text, html ) {
+            fetch( $el.data( NS + '.url' ),
+                   $el.data( 'ajaxeditFetchParams' ) || {},
+                   function( text, html ) {
 
                 editCallback({ text: text, html: html });
 
@@ -370,7 +372,8 @@
 
         var $el = $( ev.target ).closest( ':ajaxedit' ),
             isInp = isInput( $el[ 0 ] ),
-            text = isInp ?  $el.val() : $el.text();
+            text = isInp ?  $el.val() : $el.text(),
+            params;
 
         if ( !$el.data( NS + '.editMode' ) ) { return; }
 
@@ -386,12 +389,10 @@
 
         }
 
-        save( $el.data( NS + '.url' ), {
+        params = $el.data( 'ajaxeditSaveParams' ) || {};
+        params.text = text;
 
-            text: text
-
-
-        }, function( html ) {
+        save( $el.data( NS + '.url' ), params, function( html ) {
 
             cache( $el.data( NS + '.id' ), 'text', text );
 
