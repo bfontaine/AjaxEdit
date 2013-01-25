@@ -354,7 +354,7 @@
         } else {
 
             fetch( $el.data( NS + '.url' ),
-                   JSON.parse( $el.data( 'ajaxeditFetchParams' ) || '{}' ),
+                   $el.data( NS + '.params' ),
                    function( text, html ) {
 
                 editCallback({ text: text, html: html });
@@ -389,7 +389,7 @@
 
         }
 
-        params = JSON.parse( $el.data( 'ajaxeditSaveParams' ) || '{}' );
+        params = $el.data( NS + '.params' );
         params.text = text;
 
         save( $el.data( NS + '.url' ), params, function( html ) {
@@ -507,6 +507,9 @@
                 });
 
             }
+
+            $e.data( NS + '.params',
+                          JSON.parse( $e.data( 'ajaxeditParams' ) || '{}' ) );
 
             $e.data( NS + '.enabled', true );
 
