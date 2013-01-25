@@ -76,8 +76,8 @@
 
         // supported block elements
         blockEls = 'address,article,aside,blockquote,dd,div,fieldset,'
-                 + 'figcaption,figcaption,footer,form,h1,h2,h3,h4,h5,h6,'
-                 + 'header,hgroup,output,p,pre,section'.split( ',' );
+                 + 'figcaption,figcaption,footer,form,h1,h2,h3,h4,h5,h6,input,'
+                 + 'header,hgroup,output,p,pre,section,textarea'.split( ',' );
 
     /**
      * Handle values caching (internal function).
@@ -85,41 +85,50 @@
      *  cache( id, obj ) : cache `obj` and use `id` as its id
      *  cache( id  ) : return `obj`
      *  cache( id, field ) : return `obj[field]`
+     *  cache( id, field, o ) : set `obj[field]` to `o`
      **/
     cache = (function() {
         
         var _cache = {},
             _cacheCount = 0;
         
-        return function cache( id, field ) {
+        return function cache( id, field, obj ) {
 
-            if ( arguments.length === 1 ) {
-            
-                if ( typeof id === 'number' ) {
+            var l = arguments.length;
 
-                    return _cache[ id ];
-                
-                }
-                else {
+            switch( l ) {
+
+                case 1:
+                    if ( typeof id === 'number' ) {
+
+                        return _cache[ id ];
+                    
+                    }
 
                     _cache[ ++_cacheCount ] = id;
                     return _cacheCount;
 
-                }
-            
+                case 2:
+                    if ( typeof field === 'string' && id in _cache ) {
+
+                        return _cache[ id ][ field ];
+
+                    }
+                    if ( typeof field === 'object' ) {
+
+                        _cache[ id ] = field;
+                        return id;
+
+                    }
+                    return void(0);
+
+                case 3:
+                    if ( !( id in _cache ) ) { cache[ id ] = {}; }
+                    _cache[ id ][ field ] = obj;
+
             }
 
-            if ( typeof field === 'string' && id in _cache ) {
 
-                return _cache[ id ][ field ];
-
-            }
-            if ( typeof field === 'object' ) {
-
-                _cache[ id ] = field;
-                return id;
-
-            }
 
         };
 
@@ -187,6 +196,17 @@
     function isSupportedEl( e ) {
 
         return isSupportedBlockEl( e ) || isSupportedInlineEl( e );
+
+    }
+
+    /**
+     * Return `true` if the element is an input or a textarea
+     **/
+    function isInput( e ) {
+
+        var t = getTN( e );
+
+        return t === 'input' || t === 'textarea';
 
     }
 
@@ -280,16 +300,15 @@
     editElement = function( ev ) {
 
         var $el   = $( ev.target ).closest( ':ajaxedit' ),
-            eType = getTN( $el[ 0 ] ),
             $editor, editCallback;
 
-        if ( $el.data( NS + '.editMode' )) { return; }
+        if ( !$el.length || $el.data( NS + '.editMode' )) { return; }
 
         ev.stopPropagation();
 
         editCallback = function( ct ) {
 
-            if ( eType === 'input' || eType === 'textarea' ) {
+            if ( isInput( $el[0] ) ) {
 
                 $editor = $el.removeAttr( 'disabled' ).val( ct.text );
 
@@ -298,7 +317,10 @@
                 if ( !( $editor = $el.data( NS + '.editor' ) ) ) {
 
                     $el.data( NS + '.editor',
-                              $editor = $( '<' + eType + '/>' )
+                              $editor = $(  '<'
+                                          + ( isSupportedInlineEl( $el[ 0 ] )
+                                                ? 'span' : 'div' )
+                                          + '/>' )
                                       .attr( 'contenteditable', true )
                                       .css({ height: '100%', width: '100%' })
                                       .addClass( 'ajaxedit-editor' ));
@@ -337,9 +359,7 @@
 
             });
 
-
         }
-
 
     };
 
@@ -348,11 +368,43 @@
      **/
     saveElement = function( ev ) {
 
-        var $el = $( ev.target ).closest( ':ajaxedit' );
+        var $el = $( ev.target ).closest( ':ajaxedit' ),
+            isInp = isInput( $el[ 0 ] ),
+            text = isInp ?  $el.val() : $el.text();
 
         if ( !$el.data( NS + '.editMode' ) ) { return; }
 
-        //TODO
+        if ( isInp ) {
+
+            $el.attr( 'disabled', true );
+
+        } else {
+
+            $el.data( NS + '.editor' )
+                .detach()
+                .text( '' );
+
+        }
+
+        save( $el.data( NS + '.url' ), {
+
+            text: text
+
+
+        }, function( html ) {
+
+            cache( $el.data( NS + '.id' ), 'text', text );
+
+            if ( html ) {
+
+                cache( $el.data( NS + '.id' ), 'html', html );
+                $el[ isInp ? 'val' : 'html' ]( html );
+
+            }
+
+            $el.data( NS + '.editMode', false );
+
+        });
     };
 
     /**
@@ -360,12 +412,11 @@
      **/
     cancelElement = function( ev ) {
 
-        var $el   = $( ev.target ).closest( ':ajaxedit' ),
-            eType = getTN( $el );
+        var $el   = $( ev.target ).closest( ':ajaxedit' );
 
         if ( !$el.data( NS + '.editMode' ) ) { return; }
 
-        if ( eType === 'input' || eType === 'textarea' ) {
+        if ( isInput( $el[ 0 ] ) ) {
 
             $el.attr( 'disabled', true )
                .val( cache( $el.data( NS + '.id' ), 'html' ) );
