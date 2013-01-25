@@ -279,16 +279,11 @@
      **/
     editElement = function( ev ) {
 
-        var $el   = $( ev.target ),
+        var $el   = $( ev.target ).closest( ':ajaxedit' ),
             eType = getTN( $el[ 0 ] ),
             $editor, editCallback;
 
-        if (  !$el.data( NS + '.enabled' )
-            || $el.data( NS + '.editMode' )) {
-                
-                return;
-        
-        }
+        if ( $el.data( NS + '.editMode' )) { return; }
 
         ev.stopPropagation();
 
@@ -305,11 +300,12 @@
                     $el.data( NS + '.editor',
                               $editor = $( '<' + eType + '/>' )
                                       .attr( 'contenteditable', true )
+                                      .css({ height: '100%', width: '100%' })
                                       .addClass( 'ajaxedit-editor' ));
 
                 }
 
-                $editor.appendTo( $el.text( '' ) ).text( ct.text );
+                $editor.appendTo( $el.text( '' ) ).text( ct.text ).focus();
 
             }
 
@@ -350,9 +346,9 @@
     /**
      * Function called when the user want to save an element.
      **/
-    saveElement = function( save, ev ) {
+    saveElement = function( ev ) {
 
-        var $e = $( ev.target );
+        var $el = $( ev.target ).closest( ':ajaxedit' );
 
         if ( !$el.data( NS + '.editMode' ) ) { return; }
 
@@ -364,11 +360,35 @@
      **/
     cancelElement = function( ev ) {
 
-        var $e = $( ev.target );
+        var $el   = $( ev.target ).closest( ':ajaxedit' ),
+            eType = getTN( $el );
 
         if ( !$el.data( NS + '.editMode' ) ) { return; }
 
-        //TODO
+        if ( eType === 'input' || eType === 'textarea' ) {
+
+            $el.attr( 'disabled', true )
+               .val( cache( $el.data( NS + '.id' ), 'html' ) );
+
+        } else {
+
+            $el.data( NS + '.editor' )
+                .detach()
+                .text( '' );
+
+            $el.html( cache( $el.data( NS + '.id' ), 'html' ) );
+
+        }
+
+        $el.data( NS + '.editMode', false );
+
+    };
+
+    // custom selector: ':ajaxedit'
+    $.expr[ ':' ].ajaxedit = function( el ) {
+
+        return !!$( el ).data( NS + '.enabled' );
+
     };
 
     // AjaxEdit main function
