@@ -214,10 +214,16 @@
 
         beforeEach(function() {
 
+            $.mockjaxClear();
+
             g.$baseDiv = $( '<div></div>' )
-                                .attr( 'data-fetch-uri', '/test2.json' )
+                                .attr( 'data-fetch-uri', '/test.json' )
                                 .html( '<p>Hello!</p>' )
                                 .appendTo( g.$body );
+
+            g.$body.off( 'dblclick' )
+                   .off( 'keydown' )
+                   .off( 'blur' );
 
         });
 
@@ -227,11 +233,10 @@
 
         });
 
-        it( 'should set the ajaxedit.editMode '
-          + 'jQuery data attribute to true', function( done ) {
+        it( 'should trigger an ajaxedit.edited event', function( done ) {
 
                $.mockjax({
-                   url: '/test2.json',
+                   url: '/test.json',
                    response: function() {
                        this.responseText = { html:'', text:'' };
                    },
@@ -239,16 +244,33 @@
                });
 
                g.$baseDiv.ajaxedit()
+                         .on( 'ajaxedit.edited', function() {
+                             done();
+                         })
                          .trigger( 'dblclick' );
 
-             setTimeout(function() {
+        });
 
-                 expect( g.$baseDiv.data( 'ajaxedit.editMode' ) ).to.be.true;
-                 done();
+        it( 'should set the ajaxedit.editMode '
+          + 'jQuery data attribute to true', function( done ) {
 
-             }, 500);
+               $.mockjax({
+                   url: '/test.json',
+                   response: function() {
+                       this.responseText = { html:'', text:'' };
+                   },
+                   log: false
+               });
 
-           });
+               g.$baseDiv.ajaxedit()
+                         .on( 'ajaxedit.edited', function() {
+                             expect( g.$baseDiv.data( 'ajaxedit.editMode' ) ).to.be.true;
+                             done();
+
+                         })
+                         .trigger( 'dblclick' );
+
+        });
 
     });
 
