@@ -334,6 +334,9 @@
             $el.data( NS + '.editMode', true );
             cache( $el.data( NS + '.id' ), ct );
 
+            // use this event to bind functions on 'Edited' action
+            $el.trigger( NS + '.edited' );
+
         };
 
         if ( $el.data( NS + '.prefetched' ) ) {
@@ -405,6 +408,9 @@
 
             $el.data( NS + '.editMode', false );
 
+            // use this event to bind functions on 'Saved' action
+            $el.trigger( NS + '.saved' );
+
         });
     };
 
@@ -433,6 +439,9 @@
         }
 
         $el.data( NS + '.editMode', false );
+
+        // use this event to bind functions on 'Cancelled Edit' action
+        $el.trigger( NS + '.cancelledEdit' );
 
     };
 
