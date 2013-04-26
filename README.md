@@ -7,6 +7,11 @@ AjaxEdit
 website](https://github.com/IP7/Website), to edit some HTML sections using
 Markdown.
 
+Note: this project is no longer maintained, since we’re now using
+[Jeditable][jeditable].
+
+[jeditable]: http://www.appelsiini.net/projects/jeditable
+
 CHANGELOG
 ---------
 
